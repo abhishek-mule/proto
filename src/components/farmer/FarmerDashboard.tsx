@@ -1,0 +1,184 @@
+import React, { useState } from 'react';
+import { Wallet, Plus, MessageCircle, BarChart3, Sprout, DollarSign, Package, Users, TrendingUp } from 'lucide-react';
+import AddCropForm from './AddCropForm';
+import AIAssistant from './AIAssistant';
+
+const FarmerDashboard = () => {
+  const [showAddCrop, setShowAddCrop] = useState(false);
+  const [showAI, setShowAI] = useState(false);
+
+  const stats = [
+    { label: 'Total Crops Listed', value: '24', icon: Sprout, color: 'green' },
+    { label: 'Revenue This Month', value: '$2,450', icon: DollarSign, color: 'blue' },
+    { label: 'Active Orders', value: '8', icon: Package, color: 'amber' },
+    { label: 'Customer Rating', value: '4.8', icon: Users, color: 'purple' },
+  ];
+
+  const crops = [
+    { id: 1, name: 'Organic Tomatoes', status: 'Growing', progress: 75, price: '$4.50/kg', image: 'https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 2, name: 'Free-Range Carrots', status: 'Harvested', progress: 100, price: '$3.20/kg', image: 'https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 3, name: 'Sweet Corn', status: 'Planted', progress: 25, price: '$2.80/kg', image: 'https://images.pexels.com/photos/547263/pexels-photo-547263.jpeg?auto=compress&cs=tinysrgb&w=400' },
+  ];
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8 space-y-6 md:space-y-8 pb-24 md:pb-8">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-white to-green-50/50 rounded-2xl md:rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8 backdrop-blur-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between space-y-6 lg:space-y-0">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold gradient-text mb-2">Farmer Dashboard</h1>
+            <p className="text-gray-600 text-base md:text-lg font-medium">Welcome back, John Smith</p>
+          </div>
+          
+          {/* Wallet Status */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-4 md:p-6 flex items-center space-x-3 md:space-x-4 shadow-lg hover-lift">
+              <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl">
+                <Wallet className="h-5 w-5 md:h-6 md:w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-xs md:text-sm font-semibold text-green-800">Wallet Balance</p>
+                <p className="text-xl md:text-2xl font-bold text-green-900">2.45 ETH</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowAddCrop(true)}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-2 md:space-x-3 pulse-glow text-sm md:text-base"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Add New Crop</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          const colors = {
+            green: 'from-green-500 to-green-600',
+            blue: 'from-blue-500 to-blue-600',
+            amber: 'from-amber-500 to-amber-600',
+            purple: 'from-purple-500 to-purple-600',
+          };
+          return (
+            <div key={index} className="bg-white rounded-2xl shadow-lg border border-gray-100/50 p-8 hover-lift group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 mb-2">{stat.label}</p>
+                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+                <div className={`p-4 rounded-2xl bg-gradient-to-r ${colors[stat.color as keyof typeof colors]} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className="h-7 w-7 text-white" />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-10">
+        {/* Crop Listings */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-gray-800">My Crops</h2>
+              <div className="flex items-center space-x-3 bg-green-50 px-4 py-2 rounded-full">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                <span className="text-sm text-green-600 font-semibold">All performing well</span>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              {crops.map((crop) => (
+                <div key={crop.id} className="border-2 border-gray-100 rounded-2xl p-6 hover:border-green-300 hover:shadow-lg transition-all duration-300 hover-lift group">
+                  <div className="flex items-center space-x-6">
+                    <img
+                      src={crop.image}
+                      alt={crop.name}
+                      className="w-20 h-20 rounded-2xl object-cover shadow-md group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-gray-800 text-lg">{crop.name}</h3>
+                        <span className="text-xl font-bold text-green-600">{crop.price}</span>
+                      </div>
+                      <div className="flex items-center space-x-6">
+                        <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
+                          crop.status === 'Growing' ? 'bg-yellow-100 text-yellow-800' :
+                          crop.status === 'Harvested' ? 'bg-green-100 text-green-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {crop.status}
+                        </span>
+                        <div className="flex-1">
+                          <div className="bg-gray-200 rounded-full h-3">
+                            <div
+                              className="bg-gradient-to-r from-green-400 to-green-500 h-3 rounded-full transition-all duration-500"
+                              style={{ width: `${crop.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        <span className="text-sm text-gray-600 font-semibold">{crop.progress}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* AI Assistant */}
+        <div className="space-y-8">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl shadow-xl border border-blue-100/50 p-8 hover-lift">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg">
+                <MessageCircle className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800">AI Farm Assistant</h3>
+            </div>
+            <p className="text-gray-600 mb-6 leading-relaxed">Get instant advice on crop management, weather insights, and market trends.</p>
+            <button
+              onClick={() => setShowAI(true)}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              Start Conversation
+            </button>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-8">
+            <h3 className="text-xl font-bold text-gray-800 mb-6">This Week</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 font-medium">Orders Fulfilled</span>
+                <span className="font-bold text-gray-800 text-lg">12</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 font-medium">Revenue Growth</span>
+                <span className="font-bold text-green-600 text-lg">+18%</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 font-medium">New Customers</span>
+                <span className="font-bold text-blue-600 text-lg">3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {showAddCrop && (
+        <AddCropForm onClose={() => setShowAddCrop(false)} />
+      )}
+      
+      {showAI && (
+        <AIAssistant onClose={() => setShowAI(false)} />
+      )}
+    </div>
+  );
+};
+
+export default FarmerDashboard;
