@@ -4,9 +4,9 @@ import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/common/Header';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import RoleBasedLogin from './components/auth/RoleBasedLogin';
-import FarmerDashboard from './components/farmer/FarmerDashboard';
+import FarmerNFTDashboard from './components/farmer/FarmerNFTDashboard';
 import AdminDashboard from './components/admin/AdminDashboard';
-import Marketplace from './components/consumer/Marketplace';
+import NFTMarketplace from './components/nft/NFTMarketplace';
 import ProductPage from './components/consumer/ProductPage';
 import WalletConnection from './components/wallet/WalletConnection';
 import BottomNavigation from './components/common/BottomNavigation';
@@ -19,7 +19,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gradient-to-b from-green-50 to-amber-50">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-yellow-50">
           {!isMobile && <Header />}
           <Routes>
             <Route path="/" element={isMobile ? <PWADemo /> : <RoleBasedLogin />} />
@@ -31,7 +31,7 @@ function App() {
               path="/marketplace" 
               element={
                 <ProtectedRoute allowedRoles={['consumer', 'farmer', 'admin']}>
-                  <Marketplace />
+                  <NFTMarketplace />
                 </ProtectedRoute>
               } 
             />
@@ -49,7 +49,7 @@ function App() {
               path="/farmer" 
               element={
                 <ProtectedRoute allowedRoles={['farmer']}>
-                  <FarmerDashboard />
+                  <FarmerNFTDashboard />
                 </ProtectedRoute>
               } 
             />

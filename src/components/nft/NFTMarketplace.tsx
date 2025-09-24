@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MapPin, TrendingUp, Grid, List, Map } from 'lucide-react';
+import { Search, Filter, MapPin, TrendingUp, Grid, List, Map, BarChart3 } from 'lucide-react';
 import NFTCard from './NFTCard';
-import FarmLocator from '../maps/FarmLocator';
+import OpenStreetMap from '../maps/OpenStreetMap';
 import PaymentModal from '../payments/PaymentModal';
+import PriceOracle from '../analytics/PriceOracle';
+import CropAnalytics from '../analytics/CropAnalytics';
 
 const NFTMarketplace: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
@@ -11,6 +13,7 @@ const NFTMarketplace: React.FC = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [showPayment, setShowPayment] = useState(false);
   const [selectedNFT, setSelectedNFT] = useState<string | null>(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Mock NFT data
   const nfts = [
@@ -92,6 +95,22 @@ const NFTMarketplace: React.FC = () => {
     }
   ];
 
+  // Convert NFTs to farms for map
+  const farms = nfts.map(nft => ({
+    id: nft.id,
+    name: nft.farmerName,
+    location: nft.farmLocation,
+    coordinates: nft.coordinates,
+    crops: [nft.cropName],
+    nftCount: 1,
+    verificationStatus: nft.verificationStatus,
+    image: nft.cropImage,
+    rating: nft.rating,
+    totalSales: Math.floor(Math.random() * 50) + 10,
+    farmSize: '25 acres',
+    certifications: nft.certifications
+  }));
+
   const categories = [
     { id: 'all', name: 'All Crops', count: nfts.length },
     { id: 'vegetables', name: 'Vegetables', count: 3 },
@@ -126,17 +145,17 @@ const NFTMarketplace: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-yellow-50 pb-20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-green-600 via-green-700 to-emerald-700 text-white py-16 px-4">
+      <div className="bg-gradient-to-r from-green-600 via-green-700 to-emerald-700 text-white py-12 md:py-16 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 leading-tight">
             Agricultural NFT Marketplace
           </h1>
-          <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl lg:text-2xl text-green-100 mb-8 max-w-3xl mx-auto leading-relaxed">
             Discover, verify, and own unique crop NFTs with complete blockchain traceability from farm to table
           </p>
-          <div className="flex flex-wrap justify-center gap-6 text-lg">
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-base md:text-lg">
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3">
               <MapPin className="h-5 w-5" />
               <span>GPS Verified Farms</span>
@@ -153,9 +172,42 @@ const NFTMarketplace: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        {/* Analytics Toggle */}
+        <div className="mb-6">
+          <button
+            onClick={() => setShowAnalytics(!showAnalytics)}
+            className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-6 py-3 rounded-2xl font-semibold hover:from-amber-700 hover:to-orange-700 transition-all duration-300 hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <BarChart3 className="h-5 w-5" />
+            <span>{showAnalytics ? 'Hide' : 'Show'} Analytics</span>
+          </button>
+        </div>
+
+        {/* Analytics Panels */}
+        {showAnalytics && (
+          <div className="grid lg:grid-cols-2 gap-6 mb-8">
+            <PriceOracle cropType="tomatoes" />
+            <CropAnalytics 
+              cropData={{
+                id: '1',
+                name: 'Organic Heirloom Tomatoes',
+                rating: 4.9,
+                reviews: 127,
+                totalSales: 45,
+                viewCount: 234,
+                likeCount: 18,
+                supplyChainStage: 'harvested',
+                verificationStatus: 'verified',
+                location: 'Sonoma County, CA',
+                harvestDate: '2024-01-15'
+              }}
+            />
+          </div>
+        )}
+
         {/* Search and Filters */}
-        <div className="bg-white rounded-3xl shadow-xl border border-amber-100/50 p-6 mb-8">
+        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-amber-100/50 p-4 md:p-6 mb-6 md:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center space-y-6 lg:space-y-0 lg:space-x-8">
             {/* Search */}
             <div className="flex-1 relative">
@@ -165,7 +217,7 @@ const NFTMarketplace: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search for crops, farmers, or locations..."
-                className="w-full pl-12 pr-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 text-lg placeholder-gray-400"
+                className="w-full pl-12 pr-6 py-3 md:py-4 border-2 border-gray-200 rounded-xl md:rounded-2xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 text-base md:text-lg placeholder-gray-400"
               />
             </div>
 
@@ -232,25 +284,21 @@ const NFTMarketplace: React.FC = () => {
 
         {/* Content */}
         {viewMode === 'map' ? (
-          <div className="bg-white rounded-3xl shadow-xl border border-amber-100/50 overflow-hidden">
-            <FarmLocator 
-              farms={filteredNFTs.map(nft => ({
-                id: nft.id,
-                name: nft.farmerName,
-                location: nft.farmLocation,
-                coordinates: nft.coordinates,
-                crops: [nft.cropName],
-                nftCount: 1,
-                verificationStatus: nft.verificationStatus,
-                image: nft.cropImage
-              }))}
-              onFarmSelect={(farmId) => console.log('Selected farm:', farmId)}
+          <div className="space-y-6">
+            <OpenStreetMap 
+              farms={farms.filter(farm => 
+                filteredNFTs.some(nft => nft.farmerName === farm.name)
+              )}
+              onFarmSelect={(farmId) => {
+                console.log('Selected farm:', farmId);
+                // Could navigate to farm details or filter NFTs
+              }}
             />
           </div>
         ) : (
-          <div className={`${
+          <div className={`mb-8 ${
             viewMode === 'grid' 
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8' 
+              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8' 
               : 'space-y-6'
           }`}>
             {filteredNFTs.map(nft => (
@@ -265,9 +313,9 @@ const NFTMarketplace: React.FC = () => {
         )}
 
         {/* Load More */}
-        {viewMode !== 'map' && (
-          <div className="text-center mt-12">
-            <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+        {viewMode !== 'map' && filteredNFTs.length > 0 && (
+          <div className="text-center">
+            <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm md:text-base">
               Load More NFTs
             </button>
           </div>
