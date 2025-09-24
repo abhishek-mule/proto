@@ -10,15 +10,20 @@ import Marketplace from './components/consumer/Marketplace';
 import ProductPage from './components/consumer/ProductPage';
 import WalletConnection from './components/wallet/WalletConnection';
 import BottomNavigation from './components/common/BottomNavigation';
+import PWADemo from './components/PWADemo';
 
 function App() {
+  // Check if device is mobile
+  const isMobile = window.innerWidth < 768;
+
   return (
     <AuthProvider>
       <Router>
         <div className="min-h-screen bg-gradient-to-b from-green-50 to-amber-50">
-          <Header />
+          {!isMobile && <Header />}
           <Routes>
-            <Route path="/" element={<RoleBasedLogin />} />
+            <Route path="/" element={isMobile ? <PWADemo /> : <RoleBasedLogin />} />
+            <Route path="/pwa-demo" element={<PWADemo />} />
             <Route path="/login" element={<RoleBasedLogin />} />
             
             {/* Consumer Routes */}
