@@ -26,7 +26,11 @@ function App() {
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-yellow-50">
           {!isMobile && <Header />}
           <Routes>
-            <Route path="/" element={isMobile ? <PWAHome /> : <RoleBasedLogin />} />
+            <Route path="/" element={isMobile ? (
+              <AuthProvider>
+                <PWAHome />
+              </AuthProvider>
+            ) : <RoleBasedLogin />} />
             <Route path="/pwa-demo" element={<PWAHome />} />
             <Route path="/login" element={<RoleBasedLogin />} />
             
