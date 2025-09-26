@@ -256,5 +256,3 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => 
 };
 
 export default NFTCard;
-
-export default NFTCard;
