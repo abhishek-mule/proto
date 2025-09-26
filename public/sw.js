@@ -208,6 +208,7 @@ async function syncPendingTransactions() {
         }
       } catch (error) {
         console.error('[SW] Failed to sync transaction:', request.url, error);
+        return;
       }
     }
   } catch (error) {

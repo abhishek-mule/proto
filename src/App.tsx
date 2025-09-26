@@ -11,11 +11,14 @@ import NFTMarketplace from './components/nft/NFTMarketplace';
 import ProductPage from './components/consumer/ProductPage';
 import WalletConnection from './components/wallet/WalletConnection';
 import BottomNavigation from './components/common/BottomNavigation';
-import PWADemo from './components/PWADemo';
+import PWAHome from './components/PWAHome';
+
+import { useAuth } from './contexts/AuthContext';
 
 function App() {
   // Check if device is mobile
   const isMobile = window.innerWidth < 768;
+  const { user } = useAuth();
 
   return (
     <AuthProvider>
@@ -23,8 +26,8 @@ function App() {
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-yellow-50">
           {!isMobile && <Header />}
           <Routes>
-            <Route path="/" element={isMobile ? <PWADemo /> : <RoleBasedLogin />} />
-            <Route path="/pwa-demo" element={<PWADemo />} />
+            <Route path="/" element={isMobile ? <PWAHome /> : <RoleBasedLogin />} />
+            <Route path="/pwa-demo" element={<PWAHome />} />
             <Route path="/login" element={<RoleBasedLogin />} />
             
             {/* Consumer Routes */}
@@ -64,20 +67,33 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            
+
+            {/* Profile Route */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute allowedRoles={['consumer', 'farmer', 'admin']}>
+                  <div className="max-w-2xl mx-auto px-4 py-8">
+                    <h1>User Profile</h1>
+                    <p>Welcome to your profile page!</p>
+                  </div>
+                </ProtectedRoute>
+              }
+            />
+
             {/* Wallet Connection */}
-            <Route 
-              path="/wallet-connect" 
+            <Route
+              path="/wallet-connect"
               element={
                 <ProtectedRoute>
                   <div className="max-w-2xl mx-auto px-4 py-8">
                     <WalletConnection />
                   </div>
                 </ProtectedRoute>
-              } 
+              }
             />
           </Routes>
-          <BottomNavigation />
+          {user && <BottomNavigation />}
         </div>
       </Router>
     </AuthProvider>

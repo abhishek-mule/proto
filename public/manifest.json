@@ -112,7 +112,8 @@
           "src": "/icons/scan-shortcut.png",
           "sizes": "96x96"
         }
-      ]
+      ],
+      "enctype": "application/x-www-form-urlencoded"
     }
   ],
   "related_applications": [],

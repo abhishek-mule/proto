@@ -11,6 +11,7 @@
     <meta name="author" content="Blockchain Payment App" />
 
     <!-- Apple iOS Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="PayChain" />
@@ -37,7 +38,7 @@
     <title>PayChain - Blockchain Payment App</title>
 
     <!-- Preload critical resources -->
-    <link rel="preload" href="/src/main.tsx" as="script" />
+    <link rel="preload" href="/src/main.tsx" as="script" crossorigin="anonymous"/>
   </head>
   <body>
     <div id="root"></div>
@@ -122,7 +123,7 @@
       // Handle PWA install prompt
       let deferredPrompt;
       window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
+        // e.preventDefault();
         deferredPrompt = e;
 
         // Dispatch custom event for React components

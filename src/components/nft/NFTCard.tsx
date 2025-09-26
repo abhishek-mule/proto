@@ -29,10 +29,15 @@ interface NFTCardProps {
   onPurchase: (nftId: string) => void;
 }
 
-const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+export type { NFTCardProps };
 
+export type { NFTCardProps };
+
+export type { NFTCardProps };
+
+const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+ 
   const getStageColor = (stage: string) => {
     const colors = {
       planted: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -249,5 +254,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => 
     </div>
   );
 };
+
+export default NFTCard;
 
 export default NFTCard;
