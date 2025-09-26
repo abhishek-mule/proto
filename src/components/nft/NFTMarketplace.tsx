@@ -29,6 +29,105 @@ const NFTMarketplace: React.FC = () => {
         setError(null);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch NFTs.');
+        // Fallback to mock data if API fails
+        setNfts([
+          {
+            id: '1',
+            tokenId: '001',
+            cropName: 'Organic Heirloom Tomatoes',
+            cropImage: 'https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg?auto=compress&cs=tinysrgb&w=600',
+            farmerName: 'John Smith Farm',
+            farmLocation: 'Sonoma County, CA',
+            harvestDate: '2024-01-15',
+            price: 45.50,
+            priceChange: 12.5,
+            rating: 4.9,
+            reviews: 127,
+            views: 234,
+            likes: 18,
+            status: 'active',
+            verificationStatus: 'verified',
+            certifications: ['USDA Organic', 'Non-GMO', 'Fair Trade'],
+            supplyChainStage: 'harvested',
+            coordinates: { lat: 38.2975, lng: -122.4581 },
+            batchSize: '500kg',
+            organicCertified: true,
+            category: 'Vegetable',
+            createdAt: '2024-01-15'
+          },
+          {
+            id: '2',
+            tokenId: '002',
+            cropName: 'Heritage Wheat Grain',
+            cropImage: 'https://images.pexels.com/photos/326059/pexels-photo-326059.jpeg?auto=compress&cs=tinysrgb&w=600',
+            farmerName: 'Prairie Gold Farm',
+            farmLocation: 'Kansas, USA',
+            harvestDate: '2024-01-10',
+            price: 28.75,
+            priceChange: -3.2,
+            rating: 4.7,
+            reviews: 89,
+            views: 156,
+            likes: 12,
+            status: 'active',
+            verificationStatus: 'verified',
+            certifications: ['Heritage Variety', 'Sustainable'],
+            supplyChainStage: 'processed',
+            coordinates: { lat: 39.0119, lng: -98.4842 },
+            batchSize: '1000kg',
+            organicCertified: false,
+            category: 'Grain',
+            createdAt: '2024-01-10'
+          },
+          {
+            id: '3',
+            tokenId: '003',
+            cropName: 'Hydroponic Lettuce Mix',
+            cropImage: 'https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg?auto=compress&cs=tinysrgb&w=600',
+            farmerName: 'Urban Greens',
+            farmLocation: 'Brooklyn, NY',
+            harvestDate: '2024-01-20',
+            price: 18.90,
+            priceChange: 8.7,
+            rating: 4.6,
+            reviews: 73,
+            views: 89,
+            likes: 7,
+            status: 'active',
+            verificationStatus: 'pending',
+            certifications: ['Hydroponic', 'Local'],
+            supplyChainStage: 'growing',
+            coordinates: { lat: 40.6782, lng: -73.9442 },
+            batchSize: '200kg',
+            organicCertified: false,
+            category: 'Vegetable',
+            createdAt: '2024-01-20'
+          },
+          {
+            id: '4',
+            tokenId: '004',
+            cropName: 'Free-Range Carrots',
+            cropImage: 'https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg?auto=compress&cs=tinysrgb&w=600',
+            farmerName: 'Green Valley Co-op',
+            farmLocation: 'Oregon, USA',
+            harvestDate: '2024-01-12',
+            price: 32.40,
+            priceChange: 15.3,
+            rating: 4.8,
+            reviews: 156,
+            views: 201,
+            likes: 25,
+            status: 'active',
+            verificationStatus: 'verified',
+            certifications: ['USDA Organic', 'Biodynamic'],
+            supplyChainStage: 'shipped',
+            coordinates: { lat: 44.9778, lng: -123.0351 },
+            batchSize: '750kg',
+            organicCertified: true,
+            category: 'Vegetable',
+            createdAt: '2024-01-12'
+          }
+        ]);
       } finally {
         setLoading(false);
       }
@@ -36,86 +135,6 @@ const NFTMarketplace: React.FC = () => {
 
     fetchNfts();
   }, []);
-
-  // Mock NFT data
-  // const nfts = [
-  //   {
-  //     id: '1',
-  //     tokenId: '001',
-  //     cropName: 'Organic Heirloom Tomatoes',
-  //     cropImage: 'https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg?auto=compress&cs=tinysrgb&w=600',
-  //     farmerName: 'John Smith Farm',
-  //     farmLocation: 'Sonoma County, CA',
-  //     harvestDate: '2024-01-15',
-  //     price: 45.50,
-  //     priceChange: 12.5,
-  //     rating: 4.9,
-  //     reviews: 127,
-  //     verificationStatus: 'verified' as const,
-  //     certifications: ['USDA Organic', 'Non-GMO', 'Fair Trade'],
-  //     supplyChainStage: 'harvested' as const,
-  //     coordinates: { lat: 38.2975, lng: -122.4581 },
-  //     batchSize: '500kg',
-  //     organicCertified: true
-  //   },
-  //   {
-  //     id: '2',
-  //     tokenId: '002',
-  //     cropName: 'Heritage Wheat Grain',
-  //     cropImage: 'https://images.pexels.com/photos/326059/pexels-photo-326059.jpeg?auto=compress&cs=tinysrgb&w=600',
-  //     farmerName: 'Prairie Gold Farm',
-  //     farmLocation: 'Kansas, USA',
-  //     harvestDate: '2024-01-10',
-  //     price: 28.75,
-  //     priceChange: -3.2,
-  //     rating: 4.7,
-  //     reviews: 89,
-  //     verificationStatus: 'verified' as const,
-  //     certifications: ['Heritage Variety', 'Sustainable'],
-  //     supplyChainStage: 'processed' as const,
-  //     coordinates: { lat: 39.0119, lng: -98.4842 },
-  //     batchSize: '1000kg',
-  //     organicCertified: false
-  //   },
-  //   {
-  //     id: '3',
-  //     tokenId: '003',
-  //     cropName: 'Hydroponic Lettuce Mix',
-  //     cropImage: 'https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg?auto=compress&cs=tinysrgb&w=600',
-  //     farmerName: 'Urban Greens',
-  //     farmLocation: 'Brooklyn, NY',
-  //     harvestDate: '2024-01-20',
-  //     price: 18.90,
-  //     priceChange: 8.7,
-  //     rating: 4.6,
-  //     reviews: 73,
-  //     verificationStatus: 'pending' as const,
-  //     certifications: ['Hydroponic', 'Local'],
-  //     supplyChainStage: 'growing' as const,
-  //     coordinates: { lat: 40.6782, lng: -73.9442 },
-  //     batchSize: '200kg',
-  //     organicCertified: false
-  //   },
-  //   {
-  //     id: '4',
-  //     tokenId: '004',
-  //     cropName: 'Free-Range Carrots',
-  //     cropImage: 'https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg?auto=compress&cs=tinysrgb&w=600',
-  //     farmerName: 'Green Valley Co-op',
-  //     farmLocation: 'Oregon, USA',
-  //     harvestDate: '2024-01-12',
-  //     price: 32.40,
-  //     priceChange: 15.3,
-  //     rating: 4.8,
-  //     reviews: 156,
-  //     verificationStatus: 'verified' as const,
-  //     certifications: ['USDA Organic', 'Biodynamic'],
-  //     supplyChainStage: 'shipped' as const,
-  //     coordinates: { lat: 44.9778, lng: -123.0351 },
-  //     batchSize: '750kg',
-  //     organicCertified: true
-  //   }
-  // ];
 
   // Convert NFTs to farms for map
   const farms = nfts.map(nft => ({
@@ -159,7 +178,6 @@ const NFTMarketplace: React.FC = () => {
   const filteredNFTs = nfts.filter(nft => {
     if (selectedCategory !== 'all') {
       if (selectedCategory === 'organic' && !nft.organicCertified) return false;
-      // This is a simplified filter. A more robust implementation would use a category field.
       if (selectedCategory === 'vegetables' && nft.category !== 'Vegetable') return false;
       if (selectedCategory === 'grains' && nft.category !== 'Grain') return false;
     }

@@ -10,6 +10,9 @@ export interface NFT {
   priceChange: number;
   rating: number;
   reviews: number;
+  views: number;
+  likes: number;
+  status: 'active' | 'sold' | 'pending';
   verificationStatus: 'verified' | 'pending' | 'rejected';
   certifications: string[];
   supplyChainStage: 'growing' | 'harvested' | 'processed' | 'shipped' | 'delivered';
@@ -20,4 +23,5 @@ export interface NFT {
   batchSize: string;
   organicCertified: boolean;
   category: string;
+  createdAt: string;
 }

@@ -4,6 +4,24 @@ import { apiConfig } from '../apiConfig';
 const FARMER_API_URL = `${apiConfig.agriBlockchain}/farmer`;
 
 /**
+ * Fetches general farmer data including stats, crops, and user info.
+ * @returns {Promise<any>} The farmer data.
+ */
+export const getFarmerData = async () => {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await axios.get(`${FARMER_API_URL}/data`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to fetch farmer data: ${error.message}`);
+  }
+};
+
+/**
  * Fetches the NFTs owned by the currently authenticated farmer.
  * @returns {Promise<any>} The list of owned NFTs.
  */
@@ -30,4 +48,11 @@ export const mintNft = async (nftData: any) => {
     },
   });
   return response.data;
+};
+
+// Export all functions as named exports
+export default {
+  getFarmerData,
+  getOwnedNfts,
+  mintNft,
 };
