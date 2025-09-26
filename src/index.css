@@ -4,20 +4,33 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #f8fafc;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 4px;
+  border: 1px solid #f8fafc;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Hide scrollbar for specific elements */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Smooth transitions */
@@ -34,10 +47,17 @@
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #10b981, #3b82f6);
+  background: linear-gradient(135deg, #059669, #0891b2, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* Floating animation */
@@ -67,7 +87,101 @@
 
 .hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for cards */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Earthy color palette utilities */
+.bg-earth-brown { background-color: #8b4513; }
+.bg-earth-green { background-color: #228b22; }
+.bg-earth-yellow { background-color: #daa520; }
+.text-earth-brown { color: #8b4513; }
+.text-earth-green { color: #228b22; }
+.text-earth-yellow { color: #daa520; }
+
+/* Micro-interactions */
+@keyframes bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Verification badge animation */
+@keyframes verify-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.verify-pulse {
+  animation: verify-pulse 2s ease-in-out infinite;
+}
+
+/* NFT card special effects */
+.nft-glow {
+  position: relative;
+}
+
+.nft-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, #10b981, #3b82f6, #8b5cf6, #f59e0b);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  background-size: 400% 400%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.nft-glow:hover::before {
+  opacity: 0.7;
+}
+
+/* Payment method selection effects */
+.payment-method-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.payment-method-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.payment-method-card:hover::before {
+  left: 100%;
 }
 
 /* Safe area support for mobile devices */
@@ -93,6 +207,72 @@
 .gradient-border {
   position: relative;
   background: linear-gradient(white, white) padding-box,
-              linear-gradient(135deg, #10b981, #3b82f6) border-box;
+              linear-gradient(135deg, #059669, #0891b2, #3b82f6) border-box;
   border: 2px solid transparent;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus styles for better accessibility */
+.focus-ring {
+  @apply focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .gradient-text {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #047857;
+  }
+}
+
+/* Responsive design for FarmerDashboard */
+.farmer-dashboard {
+  max-width: 100%;
+  padding: 1rem;
+}
+
+.farmer-dashboard .header {
+  flex-direction: column;
+  align-items: center;
+}
+
+.farmer-dashboard .stats-grid {
+  grid-template-columns: 1fr;
+}
+
+.farmer-dashboard .crop-listings {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .farmer-dashboard .header {
+    flex-direction: row;
+  }
+
+  .farmer-dashboard .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .farmer-dashboard .crop-listings {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .farmer-dashboard .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .farmer-dashboard .crop-listings {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

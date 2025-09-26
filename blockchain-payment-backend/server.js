@@ -301,6 +301,11 @@ app.get('/health', async (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/blockchain', require('./routes/blockchain'));
 app.use('/api/payment', require('./routes/payment'));
+app.use('/api/ipfs', require('./routes/ipfs'));
+app.use('/api/fiat-crypto', require('./routes/fiatCrypto'));
+app.use('/api/price-oracle', require('./routes/priceOracle'));
+app.use('/api/narrative', require('./routes/narrative'));
+app.use('/api/geo-location', require('./routes/geoLocation'));
 
 // 404 handler - must be after all other routes
 app.use((req, res) => {
@@ -372,7 +377,8 @@ const startServer = async () => {
     await connectDB();
     
     const PORT = process.env.PORT || 5000;
-    const server = app.listen(PORT, () => {
+    const HOST = process.env.HOST || '0.0.0.0';
+    const server = app.listen(PORT, HOST, () => {
       console.log(`Server running on port ${PORT}`);
     });
 

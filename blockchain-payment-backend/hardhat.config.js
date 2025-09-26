@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+const path = require('path');
 
 module.exports = {
   solidity: "0.8.19",
@@ -11,4 +12,11 @@ module.exports = {
   etherscan: {
     apiKey: process.env.POLYGONSCAN_API_KEY,
   },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+    root: path.resolve(__dirname)
+  }
 };

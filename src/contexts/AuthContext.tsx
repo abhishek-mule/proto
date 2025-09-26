@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { User, AuthState, LoginCredentials, WalletConnection } from '../types/auth';
+import * as authService from '../services/authService';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -49,39 +50,40 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   }
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const initialState: AuthState = {
     user: null,
     isAuthenticated: false,
     isLoading: false,
     error: null
-  });
+  };
+  
+  const [state, dispatch] = useReducer(authReducer, initialState);
+  const [walletConnection, setWalletConnection] = useState<WalletConnection | null>(null);
 
-  const [walletConnection, setWalletConnection] = React.useState<WalletConnection | null>(null);
-
-  // Mock login function - replace with actual API call
+  // Real login function
   const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'LOGIN_START' });
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const data = await authService.login(credentials.email, credentials.password, credentials.role);
       
-      // Mock user data based on role
-      const mockUser: User = {
-        id: `${credentials.role}-${Date.now()}`,
-        email: credentials.email,
-        role: credentials.role,
-        name: credentials.role === 'farmer' ? 'John Smith' : 
-              credentials.role === 'admin' ? 'Admin User' : 'Jane Consumer',
-        isVerified: true,
-        createdAt: new Date().toISOString()
+      const user: User = {
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.role,
+        name: data.user.name,
+        isVerified: data.user.isVerified,
+        createdAt: data.user.createdAt
       };
 
-      dispatch({ type: 'LOGIN_SUCCESS', payload: mockUser });
-      localStorage.setItem('user', JSON.stringify(mockUser));
-    } catch (error) {
-      dispatch({ type: 'LOGIN_ERROR', payload: 'Login failed. Please try again.' });
+      dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', data.token);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || 'Login failed. Please try again.';
+      dispatch({ type: 'LOGIN_ERROR', payload: errorMessage });
+      throw new Error(errorMessage);
     }
   };
 
@@ -89,6 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'LOGOUT' });
     setWalletConnection(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     localStorage.removeItem('walletConnection');
   };
 

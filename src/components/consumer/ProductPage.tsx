@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import PaymentSystem from '../payments/PaymentSystem';
+import DualPaymentInterface from '../payments/DualPaymentInterface';
+import TraceabilityTimeline from '../traceability/TraceabilityTimeline';
+import AIStoryPanel from '../ai/AIStoryPanel';
 import { 
   ArrowLeft, Star, MapPin, Shield, Calendar, Truck, 
   QrCode, Share2, Heart, Plus, Minus, ShoppingCart,
@@ -54,11 +56,58 @@ const ProductPage = () => {
       phLevel: '6.8',
       nutrients: 'Organic Compost'
     },
-    aiStory: `Meet your Cherokee Purple Heirloom Tomatoes - a remarkable journey from seed to your table. These exceptional tomatoes began their life in John Smith's certified organic greenhouse in October 2023, where heritage seeds, passed down through three generations, were carefully planted in nutrient-rich, composted soil.
-
-Throughout their 90-day growing cycle, these tomatoes thrived under California's perfect Mediterranean climate, receiving only natural spring water and organic compost. John's sustainable farming practices include companion planting with marigolds for natural pest control and crop rotation to maintain soil health.
-
-Each tomato was hand-selected at peak ripeness, ensuring maximum flavor and nutritional value. The deep purple-red color and complex, sweet flavor profile make these tomatoes a true delicacy. From our farm to your kitchen, every step has been verified on the blockchain, guaranteeing authenticity and quality you can trust.`
+    traceabilityEvents: [
+      {
+        id: '1',
+        stage: 'planted' as const,
+        title: 'Seeds Planted',
+        description: 'Heritage Cherokee Purple tomato seeds planted in organic greenhouse',
+        date: '2023-10-15T08:00:00Z',
+        location: 'Greenhouse A, Sonoma County',
+        actor: 'John Smith',
+        data: {
+          temperature: '22°C',
+          humidity: '65%',
+          soilPh: '6.8',
+          nutrients: 'Organic compost blend',
+          pesticides: 'None - 100% Organic'
+        },
+        verified: true,
+        images: ['https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg?auto=compress&cs=tinysrgb&w=400']
+      },
+      {
+        id: '2',
+        stage: 'growing' as const,
+        title: 'Growth Monitoring',
+        description: 'Regular monitoring and care during 90-day growing cycle',
+        date: '2023-12-01T10:30:00Z',
+        location: 'Greenhouse A, Sonoma County',
+        actor: 'John Smith',
+        data: {
+          temperature: '24°C',
+          humidity: '70%',
+          nutrients: 'Weekly organic feeding',
+          pesticides: 'Companion planting with marigolds'
+        },
+        verified: true
+      },
+      {
+        id: '3',
+        stage: 'harvested' as const,
+        title: 'Hand Harvested',
+        description: 'Tomatoes hand-picked at peak ripeness for maximum flavor',
+        date: '2024-01-15T06:00:00Z',
+        location: 'Sonoma County Farm',
+        actor: 'John Smith',
+        data: {
+          weight: '500kg total batch',
+          quality: 'Grade A+',
+          batchId: 'TOM-2024-001'
+        },
+        verified: true,
+        images: ['https://images.pexels.com/photos/533280/pexels-photo-533280.jpeg?auto=compress&cs=tinysrgb&w=400']
+      }
+    ]
   };
 
   const tabs = [
@@ -66,6 +115,7 @@ Each tomato was hand-selected at peak ripeness, ensuring maximum flavor and nutr
     { id: 'traceability', label: 'Trace', icon: FileText },
     { id: 'verification', label: 'Verify', icon: Scan },
     { id: 'location', label: 'Map', icon: Map },
+    { id: 'story', label: 'AI Story', icon: Zap },
     { id: 'purchase', label: 'Buy', icon: CreditCard }
   ];
 
@@ -139,75 +189,30 @@ Each tomato was hand-selected at peak ripeness, ensuring maximum flavor and nutr
   );
 
   const renderTraceabilityTab = () => (
-    <div className="space-y-4">
-      {/* AI Story Section */}
-      <div className="bg-gradient-to-br from-green-50 via-stone-50 to-amber-50 rounded-xl p-4 border border-stone-200/50">
-        <button
-          onClick={() => toggleSection('story')}
-          className="w-full flex items-center justify-between mb-3 group"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg">
-              <Zap className="h-4 w-4 text-white" />
-            </div>
-            <h3 className="text-lg font-bold text-stone-800">AI Journey Story</h3>
-          </div>
-          {expandedSections.includes('story') ? (
-            <ChevronDown className="h-5 w-5 text-stone-600 group-hover:text-stone-800 transition-colors" />
-          ) : (
-            <ChevronRight className="h-5 w-5 text-stone-600 group-hover:text-stone-800 transition-colors" />
-          )}
-        </button>
-        
-        {expandedSections.includes('story') && (
-          <div className="animate-in slide-in-from-top-2 duration-300">
-            <p className="text-stone-700 leading-relaxed text-sm">{product.aiStory}</p>
-          </div>
-        )}
-      </div>
+    <TraceabilityTimeline 
+      events={product.traceabilityEvents}
+      cropName={product.name}
+      tokenId="001"
+    />
+  );
 
-      {/* On-Chain Data Cards */}
-      <div className="bg-white rounded-xl p-4 border border-stone-200/50">
-        <h3 className="text-lg font-bold text-stone-800 mb-3">Verified Farm Data</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-          {[
-            { icon: User, label: 'Farmer', value: product.onChainData.farmerName, color: 'green' },
-            { icon: Calendar, label: 'Harvest', value: new Date(product.onChainData.harvestDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), color: 'blue' },
-            { icon: Shield, label: 'Pesticides', value: 'None', color: 'emerald' },
-            { icon: Award, label: 'Certified', value: 'USDA Organic', color: 'amber' },
-            { icon: Droplets, label: 'Water', value: 'Spring Water', color: 'cyan' },
-            { icon: ThermometerSun, label: 'Climate', value: product.onChainData.temperature, color: 'rose' },
-            { icon: CheckCircle, label: 'Soil pH', value: product.onChainData.phLevel, color: 'indigo' },
-            { icon: Sprout, label: 'Method', value: 'Organic', color: 'purple' }
-          ].map((item, index) => {
-            const Icon = item.icon;
-            const colorClasses = {
-              green: 'bg-green-50 text-green-700 border-green-200',
-              blue: 'bg-blue-50 text-blue-700 border-blue-200',
-              emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-              amber: 'bg-amber-50 text-amber-700 border-amber-200',
-              cyan: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-              rose: 'bg-rose-50 text-rose-700 border-rose-200',
-              indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-              purple: 'bg-purple-50 text-purple-700 border-purple-200'
-            };
-            
-            return (
-              <div 
-                key={index} 
-                className={`${colorClasses[item.color as keyof typeof colorClasses]} rounded-lg p-2 border hover:scale-105 transition-all duration-300 group cursor-pointer`}
-              >
-                <div className="flex items-center space-x-1 mb-1">
-                  <Icon className="h-3 w-3 group-hover:scale-110 transition-transform duration-300" />
-                  <span className="text-xs font-semibold truncate">{item.label}</span>
-                </div>
-                <p className="font-bold text-xs text-stone-800 truncate">{item.value}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+  const renderStoryTab = () => (
+    <AIStoryPanel 
+      cropData={{
+        name: product.name,
+        farmer: product.farmer,
+        location: product.location,
+        harvestDate: product.onChainData.harvestDate,
+        farmingMethod: 'Organic',
+        certifications: product.badges,
+        soilType: product.onChainData.soilType,
+        climate: 'Mediterranean',
+        waterSource: product.onChainData.waterSource,
+        nutrients: product.onChainData.nutrients,
+        growingDays: 90
+      }}
+      onStoryGenerated={(story) => console.log('Story generated:', story)}
+    />
   );
 
   const renderVerificationTab = () => (
@@ -613,6 +618,7 @@ Each tomato was hand-selected at peak ripeness, ensuring maximum flavor and nutr
                 {activeTab === 'traceability' && renderTraceabilityTab()}
                 {activeTab === 'verification' && renderVerificationTab()}
                 {activeTab === 'location' && renderLocationTab()}
+                {activeTab === 'story' && renderStoryTab()}
                 {activeTab === 'purchase' && renderPurchaseTab()}
               </div>
             </div>
@@ -648,13 +654,12 @@ Each tomato was hand-selected at peak ripeness, ensuring maximum flavor and nutr
       
       {/* Payment Modal */}
       {showPayment && (
-        <PaymentSystem
-          amount={paymentMethod === 'upi' ? product.priceInr * quantity : product.price * quantity}
+        <DualPaymentInterface
+          amount={currency === 'INR' ? product.priceInr * quantity : product.price * quantity}
           productName={`${product.name} (${quantity} ${product.unit})`}
           onPaymentComplete={handlePaymentComplete}
           onClose={() => setShowPayment(false)}
-          currency={paymentMethod === 'upi' ? 'INR' : 'USD'}
-          paymentMethod={paymentMethod}
+          currency={currency === 'INR' ? 'INR' : 'USD'}
         />
       )}
     </div>

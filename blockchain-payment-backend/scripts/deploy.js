@@ -1,24 +1,25 @@
-const { ethers } = require("hardhat");
+const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  // Get the contract factories
+  const CropNFT = await hre.ethers.getContractFactory("CropNFT");
+  const PaymentContract = await hre.ethers.getContractFactory("PaymentContract");
 
-  const lockedAmount = ethers.parseEther("0.001");
+  // Deploy the CropNFT contract first
+  const cropNFT = await CropNFT.deploy();
+  await cropNFT.deployed();
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  console.log(`CropNFT deployed to: ${cropNFT.address}`);
 
-  await lock.waitForDeployment();
+  // Deploy the PaymentContract, passing the address of the CropNFT contract
+  const paymentContract = await PaymentContract.deploy(cropNFT.address);
+  await paymentContract.deployed();
 
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  console.log(`PaymentContract deployed to: ${paymentContract.address}`);
 }
 
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;

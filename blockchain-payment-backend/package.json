@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@metamask/sdk": "^0.33.1",
+    "@openzeppelin/contracts": "^5.4.0",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
