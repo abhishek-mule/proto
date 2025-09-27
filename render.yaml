@@ -8,10 +8,8 @@
 services:
   - type: web
     name: agri-backend
-    env: node
-    rootDir: agri-blockchain-backend
-    buildCommand: npm ci --omit=dev
-    startCommand: npm start
+    env: docker
+    dockerfilePath: agri-blockchain-backend/Dockerfile
     autoDeploy: true
     plan: free
     healthCheckPath: /health
@@ -57,10 +55,8 @@ services:
 
   - type: web
     name: agri-payments-backend
-    env: node
-    rootDir: blockchain-payment-backend
-    buildCommand: npm ci --omit=dev
-    startCommand: npm start
+    env: docker
+    dockerfilePath: blockchain-payment-backend/Dockerfile
     autoDeploy: true
     plan: free
     healthCheckPath: /health
