@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { API_BASE_URL } from '../apiConfig';
+import { apiConfig } from '../apiConfig';
 
-const IPFS_API = `${API_BASE_URL}/api/ipfs`;
+const IPFS_API = `${apiConfig.payment}/ipfs`;
 
 export interface IPFSFile {
   cid: string;
@@ -68,7 +68,7 @@ const ipfsService = {
       attributes,
     };
 
-    const response = await axios.post(`${IPFS_API}/nft-metadata`, { metadata });
+    const response = await axios.post(`${IPFS_API}/metadata`, metadata);
     return response.data;
   },
 

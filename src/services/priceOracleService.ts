@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { apiConfig } from '../apiConfig';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = `${apiConfig.agriBlockchain}`;
 
 /**
  * Service for interacting with the price oracle API
@@ -13,10 +14,16 @@ const priceOracleService = {
    */
   async getCryptoPrices(symbols: string[] = []): Promise<Record<string, number>> {
     try {
-      const response = await axios.get(`${API_URL}/price-oracle/crypto-prices`, {
-        params: { symbols: symbols.join(',') }
-      });
-      return response.data.prices;
+      // Backend supports single-asset price; aggregate on client
+      const results: Record<string, number> = {};
+      for (const sym of symbols) {
+        const crypto = sym.toLowerCase() === 'matic' ? 'matic-network' : sym.toLowerCase();
+        const resp = await axios.get(`${API_URL}/price-oracle/price`, {
+          params: { crypto, currency: 'inr' }
+        });
+        results[sym] = resp.data?.priceData?.aggregatedPrice || resp.data?.priceData?.price || 0;
+      }
+      return results;
     } catch (error) {
       console.error('Error fetching crypto prices:', error);
       throw error;
@@ -30,10 +37,15 @@ const priceOracleService = {
    */
   async getFiatRates(currencies: string[] = []): Promise<Record<string, number>> {
     try {
-      const response = await axios.get(`${API_URL}/price-oracle/fiat-rates`, {
-        params: { currencies: currencies.join(',') }
-      });
-      return response.data.rates;
+      // Derive vs INR by converting 1 unit to INR
+      const rates: Record<string, number> = {};
+      for (const cur of currencies) {
+        const resp = await axios.get(`${API_URL}/price-oracle/exchange-rate`, {
+          params: { from: cur.toUpperCase(), to: 'INR' }
+        });
+        rates[cur] = resp.data?.exchangeRate?.rate || resp.data?.exchangeRate || 0;
+      }
+      return rates;
     } catch (error) {
       console.error('Error fetching fiat rates:', error);
       throw error;
@@ -53,10 +65,11 @@ const priceOracleService = {
     toCurrency: string
   ): Promise<{ convertedAmount: number; rate: number }> {
     try {
-      const response = await axios.get(`${API_URL}/price-oracle/convert`, {
-        params: { amount, from: fromCurrency, to: toCurrency }
+      const response = await axios.get(`${API_URL}/price-oracle/exchange-rate`, {
+        params: { from: fromCurrency.toUpperCase(), to: toCurrency.toUpperCase() }
       });
-      return response.data;
+      const rate = response.data?.exchangeRate?.rate || response.data?.exchangeRate || 0;
+      return { convertedAmount: amount * rate, rate };
     } catch (error) {
       console.error('Error converting currency:', error);
       throw error;
@@ -74,13 +87,13 @@ const priceOracleService = {
     chainId: number = 1
   ): Promise<Record<string, number>> {
     try {
-      const response = await axios.get(`${API_URL}/price-oracle/token-prices`, {
-        params: { 
-          addresses: tokenAddresses.join(','),
-          chainId 
-        }
-      });
-      return response.data.prices;
+      // Fallback: use /price endpoint for network-native tokens if supported; otherwise return empty
+      const results: Record<string, number> = {};
+      for (const addr of tokenAddresses) {
+        // Not supported natively; leave placeholder or implement backend support
+        results[addr] = 0;
+      }
+      return results;
     } catch (error) {
       console.error('Error fetching token prices:', error);
       throw error;

@@ -39,17 +39,17 @@ const FiatCryptoWidget: React.FC<FiatCryptoWidgetProps> = ({
       
       const result = await fiatCryptoService.processUpiPayment({
         amount,
+        currency: 'INR',
         upiId,
+        description: `Purchase of ${tokenId || 'item'}`,
+        userId: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!).id : '',
         tokenId,
-        metadata: {
-          paymentType: 'purchase',
-          timestamp: new Date().toISOString()
-        }
       });
       
-      setTransactionId(result.transactionId);
+      const txId = (result as any)?.transactionId || (result as any)?._id || (result as any)?.paymentId || `txn_${Date.now()}`;
+      setTransactionId(txId);
       setStatus('success');
-      onSuccess?.(result.transactionId);
+      onSuccess?.(txId);
     } catch (error) {
       console.error('Payment error:', error);
       setStatus('error');

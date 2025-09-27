@@ -7,7 +7,6 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const cron = require('node-cron');
 require('dotenv').config();
-console.log("Environment Variables:", process.env);
 
 const cropRoutes = require('./src/routes/crop'); // Import crop routes
 
@@ -93,7 +92,6 @@ app.use('/api/payment', paymentRoutes);
 const priceOracleRoutes = require('./src/routes/priceOracle');
 app.use('/api/price-oracle', priceOracleRoutes);
 const aiRoutes = require('./src/routes/ai');
-app.use('/api/ai', aiRoutes);
 app.use('/api/ai', aiRoutes);
 const blockchainRoutes = require('./src/routes/blockchain');
 app.use('/api/blockchain', blockchainRoutes);

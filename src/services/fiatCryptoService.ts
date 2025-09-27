@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { API_BASE_URL } from '../apiConfig';
+import { apiConfig } from '../apiConfig';
 
-const FIAT_CRYPTO_API = `${API_BASE_URL}/api/fiat-crypto`;
+const FIAT_CRYPTO_API = `${apiConfig.payment}/fiat-crypto`;
 
 export interface UPIPaymentRequest {
   amount: number;
@@ -34,9 +34,12 @@ const fiatCryptoService = {
    * @param paymentData - UPI payment data
    * @returns Promise with transaction details
    */
-  async processUPIPayment(paymentData: UPIPaymentRequest): Promise<PaymentTransaction> {
-    const response = await axios.post(`${FIAT_CRYPTO_API}/process-payment`, paymentData);
-    return response.data.transaction;
+  async processUpiPayment(paymentData: UPIPaymentRequest): Promise<PaymentTransaction> {
+    const token = localStorage.getItem('token');
+    const response = await axios.post(`${FIAT_CRYPTO_API}/upi-payment`, paymentData, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    return response.data.transaction || response.data.payment || response.data;
   },
 
   /**

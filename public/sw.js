@@ -58,6 +58,12 @@ self.addEventListener('activate', (event) => {
 // Fetch event - handle requests
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  
+  // Skip chrome-extension requests
+  if (request.url.startsWith('chrome-extension://')) {
+    return;
+  }
+  
   const url = new URL(request.url);
 
   // Handle API requests

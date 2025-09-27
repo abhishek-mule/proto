@@ -5,3 +5,6 @@ export const apiConfig = {
   agriBlockchain: agriBlockchainApiUrl,
   payment: paymentApiUrl,
 };
+
+// Backward-compat shim for older services
+export const API_BASE_URL = paymentApiUrl;

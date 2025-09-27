@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const FiatCryptoService = require('../services/fiatCryptoService');
+const { authenticateToken } = require('../middleware/auth');
 const fiatCryptoService = new FiatCryptoService();
 
 /**
@@ -8,7 +9,7 @@ const fiatCryptoService = new FiatCryptoService();
  * @desc    Process a UPI payment and convert to crypto
  * @access  Private
  */
-router.post('/upi-payment', async (req, res) => {
+router.post('/upi-payment', authenticateToken, async (req, res) => {
   try {
     const paymentData = req.body;
     
@@ -43,7 +44,7 @@ router.post('/upi-payment', async (req, res) => {
  * @desc    Get user's transaction history
  * @access  Private
  */
-router.get('/transactions', async (req, res) => {
+router.get('/transactions', authenticateToken, async (req, res) => {
   try {
     const transactions = await fiatCryptoService.getTransactionHistory(req.user.id);
     

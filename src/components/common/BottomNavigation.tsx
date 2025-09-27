@@ -89,8 +89,8 @@ const BottomNavigation = () => {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
         {/* Navigation Container */}
         <div className="flex justify-center pb-6 px-4">
-          <div className="bg-gray-900/95 backdrop-blur-xl rounded-full shadow-2xl border border-gray-800/50 pointer-events-auto">
-            <nav className="flex items-center px-2 py-2">
+          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 pointer-events-auto">
+            <nav className="flex items-center px-3 py-3">
               {navigationItems.map((item, index) => {
                 const Icon = item.icon;
                 const active = isActive(item.path);
@@ -99,27 +99,19 @@ const BottomNavigation = () => {
                   <Link
                     key={item.id}
                     to={item.path}
-                    className={`
-                      relative flex items-center justify-center p-4 mx-1 rounded-full
-                      transition-all duration-300 ease-out
-                      ${active 
-                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-                      }
-                      active:scale-95 hover:scale-105
-                      min-w-[56px] min-h-[56px]
-                    `}
+                    className={`flex flex-col items-center justify-center px-5 py-1 rounded-xl transition-all duration-300 ${
+                      active
+                        ? 'text-green-600'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
                   >
-                    {/* Icon */}
-                    <Icon className={`
-                      h-6 w-6 transition-all duration-300 ease-out
-                      ${active ? 'scale-110' : ''}
-                    `} />
-                    
-                    {/* Active indicator ripple */}
-                    {active && (
-                      <div className="absolute inset-0 rounded-full bg-green-400/20 animate-ping"></div>
-                    )}
+                    <div className={`relative ${active ? 'scale-110' : ''}`}>
+                      <Icon className="h-5 w-5" />
+                      {active && (
+                        <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></span>
+                      )}
+                    </div>
+                    <span className="text-xs mt-1 font-medium">{item.label}</span>
                   </Link>
                 );
               })}

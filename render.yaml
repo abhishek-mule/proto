@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: agri-backend
+    env: node
+    plan: free
+    buildCommand: "npm ci"
+    startCommand: "npm start"
+    workingDirectory: agri-blockchain-backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+    autoDeploy: true
+
+  - type: web
+    name: agri-payments-backend
+    env: node
+    plan: free
+    buildCommand: "npm ci"
+    startCommand: "npm start"
+    workingDirectory: blockchain-payment-backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+    autoDeploy: true

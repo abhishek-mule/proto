@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
-import { User, AuthState, LoginCredentials, WalletConnection } from '../types/auth';
+import { User, AuthState, LoginCredentials, SignupCredentials, WalletConnection } from '../types/auth';
 import * as authService from '../services/authService';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
+  signup: (credentials: SignupCredentials) => Promise<void>;
   logout: () => void;
   connectWallet: () => Promise<WalletConnection>;
   disconnectWallet: () => void;
@@ -86,6 +87,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error(errorMessage);
     }
   };
+  
+  // Signup function
+  const signup = async (credentials: SignupCredentials) => {
+    dispatch({ type: 'LOGIN_START' });
+    
+    try {
+      const data = await authService.signup(
+        credentials.name,
+        credentials.email, 
+        credentials.password, 
+        credentials.role
+      );
+      
+      // After successful signup, automatically log in the user
+      return login({
+        email: credentials.email,
+        password: credentials.password,
+        role: credentials.role
+      });
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || 'Signup failed. Please try again.';
+      dispatch({ type: 'LOGIN_ERROR', payload: errorMessage });
+      throw new Error(errorMessage);
+    }
+  };
 
   const logout = () => {
     dispatch({ type: 'LOGOUT' });
@@ -146,11 +172,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{
-      ...state,
+    <AuthContext.Provider value={{ 
+      ...state, 
       login,
-      logout,
-      connectWallet,
+      signup,
+      logout, 
+      connectWallet, 
       disconnectWallet,
       walletConnection
     }}>

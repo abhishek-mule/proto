@@ -22,6 +22,13 @@ export interface LoginCredentials {
   role: 'consumer' | 'farmer' | 'admin';
 }
 
+export interface SignupCredentials {
+  name: string;
+  email: string;
+  password: string;
+  role: 'consumer' | 'farmer' | 'admin';
+}
+
 export interface WalletConnection {
   address: string;
   balance: string;
