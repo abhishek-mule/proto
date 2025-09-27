@@ -5,7 +5,7 @@ services:
     plan: free
     buildCommand: "npm ci"
     startCommand: "npm start"
-    workingDirectory: agri-blockchain-backend
+rootDir: agri-blockchain-backend
     envVars:
       - key: NODE_ENV
         value: production
@@ -18,7 +18,7 @@ services:
     plan: free
     buildCommand: "npm ci"
     startCommand: "npm start"
-    workingDirectory: blockchain-payment-backend
+rootDir: blockchain-payment-backend
     envVars:
       - key: NODE_ENV
         value: production
