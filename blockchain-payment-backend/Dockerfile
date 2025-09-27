@@ -1,23 +1,20 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18
+# Node 20 for runtime
+FROM node:20-alpine
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
+# Install production deps
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install project dependencies
-RUN npm install
-
-# Copy the rest of the application's source code from your host to your image filesystem.
+# Copy source
 COPY . .
 
-# Compile the smart contracts
-RUN npx hardhat compile
+ENV NODE_ENV=production
 
-# Make port 8545 available to the world outside this container
-EXPOSE 8545
+# Healthcheck to /health
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD node -e "require('http').get('http://127.0.0.1:'+(process.env.PORT||5001)+'/health', r=>{if(r.statusCode!==200)process.exit(1)}).on('error',()=>process.exit(1))"
 
-# Define the command to run your app
-CMD ["npx", "hardhat", "node"]
+EXPOSE 5001
+
+CMD ["npm","start"]

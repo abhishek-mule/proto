@@ -68,6 +68,14 @@ app.use((req, res, next) => {
 // Database connection with retry logic
 const connectDB = async () => {
   try {
+    // Fail fast if required env vars are missing (prevents 'openUri(undefined)' crash)
+    const requiredEnvs = ['MONGODB_URI'];
+    const missing = requiredEnvs.filter((k) => !process.env[k] || !String(process.env[k]).trim());
+    if (missing.length) {
+      console.error(`❌ Missing required environment variables: ${missing.join(', ')}. Set them in your Render service or a .env file.`);
+      process.exit(1);
+    }
+
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -111,6 +119,19 @@ app.get('/health', async (req, res) => {
   };
 
   res.json(healthStatus);
+});
+
+// Public endpoint for frontend to fetch current contract addresses
+app.get('/contracts', (req, res) => {
+  const network = process.env.BLOCKCHAIN_NETWORK || 'polygon-amoy';
+  res.json({
+    network,
+    addresses: {
+      cropNft: process.env.CROP_NFT_CONTRACT_ADDRESS || null,
+      payment: process.env.CONTRACT_ADDRESS || null
+    },
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Webhook endpoint for Razorpay (raw body needed)
