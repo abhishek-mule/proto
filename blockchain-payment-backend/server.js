@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const winston = require('winston');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -197,6 +198,12 @@ app.use((req, res, next) => {
 // Connect to MongoDB first
 const connectDB = async () => {
   try {
+    // Validate required env before attempting to connect
+    if (!process.env.MONGODB_URI || !String(process.env.MONGODB_URI).trim()) {
+      console.error('Missing required env var MONGODB_URI. Set it in Render (Environment tab) or your .env file.');
+      process.exit(1);
+    }
+
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -220,6 +227,45 @@ const connectDB = async () => {
 // Routes
 app.get('/', (req, res) => {
   res.json({ message: 'Blockchain Payment Backend API' });
+});
+
+// Public endpoint to expose deployed contract addresses for the frontend
+app.get('/contracts', (req, res) => {
+  try {
+    const network = process.env.BLOCKCHAIN_NETWORK || 'polygon-amoy';
+
+    // Prefer env vars
+    let cropNft = process.env.CROP_NFT_CONTRACT_ADDRESS || process.env.CROP_NFT_CONTRACT || null;
+    let payment = process.env.CONTRACT_ADDRESS || process.env.PAYMENT_CONTRACT || null;
+    let source = 'env';
+
+    // Fallback to deployments file if missing
+    if (!cropNft || !payment) {
+      const file = path.join(__dirname, 'deployments', `deployments-${network}.json`);
+      if (fs.existsSync(file)) {
+        try {
+          const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+          cropNft = cropNft || data.cropNFT;
+          payment = payment || data.paymentContract;
+          source = cropNft && payment ? 'deployments-file' : source;
+        } catch (_) {
+          // ignore parse errors, keep env values
+        }
+      }
+    }
+
+    res.json({
+      network,
+      addresses: {
+        cropNft,
+        payment
+      },
+      source,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to read contract addresses' });
+  }
 });
 
 // Health check endpoint - no middleware applied before this

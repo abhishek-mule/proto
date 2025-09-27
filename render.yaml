@@ -1,3 +1,109 @@
+# Render Infrastructure as Code
+# Deploys two Node.js web services:
+# - agri-backend (agri-blockchain-backend)
+# - agri-payments-backend (blockchain-payment-backend)
+#
+# Secrets are NOT stored here. Set them in the Render dashboard.
+
+services:
+  - type: web
+    name: agri-backend
+    env: node
+    rootDir: agri-blockchain-backend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    autoDeploy: true
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: RATE_LIMIT_WINDOW
+        value: "900000"
+      - key: RATE_LIMIT_MAX
+        value: "100"
+      - key: PINATA_API_KEY
+        sync: false
+      - key: PINATA_SECRET_KEY
+        sync: false
+      - key: PINATA_JWT
+        sync: false
+      - key: STRIPE_KEY_SECRET
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: ETHEREUM_RPC_URL
+        sync: false
+      - key: POLYGON_RPC_URL
+        value: https://polygon-rpc.com
+      - key: POLYGON_TESTNET_RPC_URL
+        value: https://rpc-amoy.polygon.technology
+      - key: CHAIN_ID_ETHEREUM
+        value: "1"
+      - key: CHAIN_ID_POLYGON
+        value: "137"
+      - key: CHAIN_ID_POLYGON_MUMBAI
+        value: "80002"
+      - key: FRONTEND_URL
+        sync: false
+
+  - type: web
+    name: agri-payments-backend
+    env: node
+    rootDir: blockchain-payment-backend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    autoDeploy: true
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: JWT_COOKIE_EXPIRE
+        value: "30"
+      - key: BLOCKCHAIN_NETWORK
+        value: polygon-amoy
+      - key: CONTRACT_ADDRESS
+        sync: false
+      - key: CROP_NFT_CONTRACT_ADDRESS
+        sync: false
+      - key: WALLET_PRIVATE_KEY
+        sync: false
+      - key: POLYGONSCAN_API_KEY
+        sync: false
+      - key: INFURA_PROJECT_ID
+        sync: false
+      - key: INFURA_PROJECT_SECRET
+        sync: false
+      - key: RPC_URL
+        value: https://rpc-amoy.polygon.technology
+      - key: IPFS_HOST
+        value: localhost
+      - key: IPFS_PORT
+        value: "5001"
+      - key: IPFS_PROTOCOL
+        value: http
+      - key: IPFS_GATEWAY
+        value: https://ipfs.io/ipfs
+      - key: FRONTEND_URL
+        sync: false
+
 services:
   - type: web
     name: agri-backend

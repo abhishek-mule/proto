@@ -4,8 +4,7 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title CropNFT
@@ -14,8 +13,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * Features include supply chain tracking, geo-location data, quality certifications, and ownership history.
  */
 contract CropNFT is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
+    uint256 private _tokenIdCounter;
 
     // Enums for crop lifecycle stages
     enum CropStage { Planted, Growing, Harvested, Processed, Packaged, InTransit, Delivered, Sold }
@@ -116,8 +114,8 @@ contract CropNFT is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     ) public onlyOwner returns (uint256) {
         require(verifiedFarmers[farmer], "Farmer must be verified");
         
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter;
+        _tokenIdCounter += 1;
         
         // Mint the NFT
         _safeMint(farmer, tokenId);
@@ -268,8 +266,8 @@ contract CropNFT is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         onlyOwner
         returns (uint256)
     {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter;
+        _tokenIdCounter += 1;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
         return tokenId;

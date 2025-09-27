@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  agri-backend:
+    build:
+      context: ./agri-blockchain-backend
+    image: agri-backend:local
+    env_file:
+      - ./agri-blockchain-backend/.env
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  agri-payments-backend:
+    build:
+      context: ./blockchain-payment-backend
+    image: agri-payments-backend:local
+    env_file:
+      - ./blockchain-payment-backend/.env
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
