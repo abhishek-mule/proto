@@ -25,7 +25,7 @@ class ApiService {
   private client: AxiosInstance;
   private baseURL: string;
 
-  constructor(baseURL: string = import.meta.env.VITE_API_URL || 'http://localhost:5000') {
+  constructor(baseURL: string = import.meta.env.VITE_API_URL || 'https://agri-payments-backend-aivg.onrender.com') {
     this.baseURL = baseURL;
     this.client = axios.create({
       baseURL,
