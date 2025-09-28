@@ -18,6 +18,12 @@ const socketService = require('./src/services/socketService');
 const logger = require('./src/utils/logger');
 
 const app = express();
+
+// Minimal health check registered early so platform probes succeed during init
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 app.use('/api/crop', cropRoutes);
 const httpServer = createServer(app);
 

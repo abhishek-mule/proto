@@ -8,10 +8,14 @@ const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const winston = require('winston');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
 const hpp = require('hpp');
 
 const app = express();
+
+// Minimal health check registered early to satisfy platform probes
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'UP', timestamp: new Date().toISOString() });
+});
 
 // Serve static files from the public directory
 app.use(express.static('public'));
@@ -86,7 +90,8 @@ app.use((req, res, next) => {
 });
 
 // Data sanitization against XSS
-app.use(xss());
+// NOTE: xss-clean is incompatible with Express 5 (req.query is a getter).
+// It was causing health check failures on Render. Disable for now.
 
 // Prevent parameter pollution
 app.use(hpp({
