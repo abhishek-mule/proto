@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Note: Google Fonts are loaded via HTML link tag in index.html */
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
