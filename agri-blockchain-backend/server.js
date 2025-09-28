@@ -44,12 +44,31 @@ app.use(helmet({
   }
 }));
 
-app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+// CORS: allow env origins and any *.vercel.app subdomain
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+const vercelRegex = /\.vercel\.app$/;
+
+const agriCorsOptions = {
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    try {
+      const { hostname } = new URL(origin);
+      const ok = allowedOrigins.includes(origin) || vercelRegex.test(hostname) || allowedOrigins.includes('*');
+      cb(ok ? null : new Error('Not allowed by CORS'), ok);
+    } catch {
+      cb(new Error('Invalid Origin'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-razorpay-signature']
-}));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-razorpay-signature', 'X-Requested-With'],
+};
+
+app.use(cors(agriCorsOptions));
+app.options('*', cors(agriCorsOptions));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -191,6 +210,9 @@ httpServer.listen(PORT, HOST, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 CORS enabled for: ${process.env.CORS_ORIGIN || '*'}`);
 });
+// Increase timeouts to reduce gateway timeout issues
+httpServer.keepAliveTimeout = 120000;
+httpServer.headersTimeout = 120000;
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
