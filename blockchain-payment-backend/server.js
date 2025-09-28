@@ -78,7 +78,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+// Handle preflight across all paths (Express 5 compatible)
+app.options(/.*/, cors(corsOptions));
 
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));

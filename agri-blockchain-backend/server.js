@@ -68,7 +68,8 @@ const agriCorsOptions = {
 };
 
 app.use(cors(agriCorsOptions));
-app.options('*', cors(agriCorsOptions));
+// Handle preflight across all paths (Express 5 compatible)
+app.options(/.*/, cors(agriCorsOptions));
 
 // Rate limiting
 const limiter = rateLimit({
