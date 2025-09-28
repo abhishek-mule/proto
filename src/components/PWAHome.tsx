@@ -4,10 +4,15 @@ import {
   Search, Filter, TrendingUp, Award, MapPin, 
   Leaf, Shield, Star, Eye, ShoppingCart, 
   ChevronRight, Sparkles, Globe, Users,
-  ArrowRight, Play, Zap, Heart
+  ArrowRight, Play, Zap, Heart, Lightbulb
 } from 'lucide-react';
 import NFTCard from './nft/NFTCard';
 import { useAuth } from '../contexts/AuthContext';
+import { FadeIn, CountUp, Stagger, HoverScale, Typewriter } from './ui/Animations';
+import { SkeletonGrid } from './ui/LoadingStates';
+import { NoSearchResults } from './ui/EmptyStates';
+import { Tooltip } from './ui/Onboarding';
+import { useAnnouncer } from '../hooks/useAccessibility';
 
 interface NFTCardProps {
   nft: {
@@ -38,11 +43,20 @@ const PWAHome: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { announce } = useAnnouncer();
 
-  // Animation trigger
+  // Animation trigger and loading simulation
   useEffect(() => {
     setIsVisible(true);
-  }, []);
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      announce('Agricultural marketplace loaded successfully');
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [announce]);
 
   // Enhanced mock data with more variety
   const mockNFTs = [
@@ -171,84 +185,116 @@ const PWAHome: React.FC = () => {
     return matchesSearch && matchesFilter;
   });
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      announce(`Searching for ${query}`);
+    }
+  };
+
+  const handleFilterChange = (filter: string) => {
+    setSelectedFilter(filter);
+    announce(`Filter changed to ${filter}`);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    announce('Search cleared');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-forest-50 via-white to-harvest-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600">
+      <div className="relative overflow-hidden bg-gradient-primary">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-forest-600/20 to-transparent"></div>
         
         {/* Floating Elements */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-24 h-24 bg-yellow-300/20 rounded-full blur-lg animate-bounce"></div>
+        <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl animate-float"></div>
+        <div className="absolute bottom-20 right-20 w-24 h-24 bg-harvest-300/20 rounded-full blur-lg animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-sky-300/10 rounded-full blur-lg animate-float" style={{ animationDelay: '2s' }}></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className={`text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="flex items-center justify-center mb-6">
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-white/30">
-                <Sparkles className="h-4 w-4 text-yellow-300" />
-                <span className="text-white/90 text-sm font-medium">Revolutionizing Agriculture</span>
+          <div className="text-center">
+            <FadeIn delay={300}>
+              <div className="flex items-center justify-center mb-6">
+                <HoverScale>
+                  <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-white/30 hover:bg-white/30 transition-all cursor-default">
+                    <Sparkles className="h-4 w-4 text-harvest-300" />
+                    <span className="text-white/90 text-sm font-medium">Revolutionizing Agriculture</span>
+                  </div>
+                </HoverScale>
               </div>
-            </div>
+            </FadeIn>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
-              Farm to Fork
-              <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                NFT Marketplace
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Discover sustainable agriculture through blockchain-verified crops. 
-              Connect directly with farmers and trace your food's journey.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link
-                to="/marketplace"
-                className="group relative px-8 py-4 bg-white text-green-600 font-bold rounded-2xl hover:bg-green-50 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
-              >
-                <span className="flex items-center">
-                  Explore Marketplace
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <FadeIn delay={500}>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
+                <Typewriter text="Farm to Fork" speed={100} />
+                <span className="block bg-gradient-to-r from-harvest-300 to-harvest-400 bg-clip-text text-transparent">
+                  <Typewriter text="NFT Marketplace" speed={80} />
                 </span>
-              </Link>
-              
-              <button className="group flex items-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-2xl border border-white/30 hover:bg-white/30 transition-all duration-300">
-                <Play className="mr-2 h-5 w-5" />
-                Watch Demo
-              </button>
-            </div>
+              </h1>
+            </FadeIn>
+            
+            <FadeIn delay={800}>
+              <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
+                Discover sustainable agriculture through blockchain-verified crops. 
+                Connect directly with farmers and trace your food's journey.
+              </p>
+            </FadeIn>
+            
+            <FadeIn delay={1000}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                <HoverScale>
+                  <Link
+                    to="/marketplace"
+                    className="group relative px-8 py-4 bg-white text-forest-600 font-bold rounded-2xl hover:bg-forest-50 transition-all duration-300 shadow-xl hover:shadow-glow"
+                  >
+                    <span className="flex items-center">
+                      Explore Marketplace
+                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </Link>
+                </HoverScale>
+                
+                <HoverScale>
+                  <Tooltip content="Coming soon! Interactive demo of our platform">
+                    <button className="group flex items-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-2xl border border-white/30 hover:bg-white/30 transition-all duration-300">
+                      <Play className="mr-2 h-5 w-5" />
+                      Watch Demo
+                    </button>
+                  </Tooltip>
+                </HoverScale>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </div>
 
       {/* Stats Section */}
       <div className="relative -mt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6" staggerDelay={150}>
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div
-                key={stat.label}
-                className={`bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-                }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <Icon className={`h-8 w-8 ${stat.color}`} />
+              <HoverScale key={stat.label}>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-soft border border-gray-100 dark:border-gray-700 hover:shadow-medium transition-all duration-300">
+                  <div className="flex items-center justify-between mb-4">
+                    <Icon className={`h-8 w-8 ${stat.color}`} />
+                  </div>
+                  <div className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-1">
+                    <CountUp end={parseInt(stat.value.replace(/[^0-9.]/g, ''))} />
+                    {stat.value.includes('%') && '%'}
+                    {stat.value.includes(',') && stat.value.includes('K') ? 'K+' : ''}
+                  </div>
+                  <div className="text-gray-600 dark:text-gray-400 font-medium text-sm">
+                    {stat.label}
+                  </div>
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-gray-900 mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-gray-600 font-medium text-sm">
-                  {stat.label}
-                </div>
-              </div>
+              </HoverScale>
             );
           })}
-        </div>
+        </Stagger>
       </div>
 
       {/* Search and Filter Section */}
@@ -263,60 +309,68 @@ const PWAHome: React.FC = () => {
         </div>
 
         {/* Search and Filter Controls */}
-        <div className="flex flex-col lg:flex-row gap-6 items-center justify-between mb-8">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              placeholder="Search crops, farmers, or locations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Filter className="h-5 w-5 text-gray-600" />
-            <select
-              value={selectedFilter}
-              onChange={(e) => setSelectedFilter(e.target.value)}
-              className="px-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 text-gray-900"
-            >
-              <option value="all">All Crops</option>
-              <option value="organic">Organic Only</option>
-              <option value="verified">Verified Only</option>
-              <option value="trending">Trending</option>
-            </select>
-          </div>
-        </div>
-
-        {/* NFT Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {filteredNFTs.map((nft, index) => (
-            <div
-              key={nft.id}
-              className={`transition-all duration-500 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-              style={{ transitionDelay: `${index * 150}ms` }}
-            >
-              <NFTCard 
-                nft={nft} 
-                onViewDetails={(id) => console.log('View details:', id)}
-                onPurchase={(id) => console.log('Purchase:', id)}
+        <FadeIn delay={200}>
+          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between mb-8">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Search crops, farmers, or locations..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-4 focus:ring-forest-500/20 focus:border-forest-500 transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                aria-label="Search agricultural products"
               />
             </div>
-          ))}
-        </div>
-
-        {filteredNFTs.length === 0 && (
-          <div className="text-center py-16">
-            <div className="text-gray-400 mb-4">
-              <Search className="h-16 w-16 mx-auto" />
+            
+            <div className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <select
+                value={selectedFilter}
+                onChange={(e) => handleFilterChange(e.target.value)}
+                className="px-4 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-4 focus:ring-forest-500/20 focus:border-forest-500 transition-all duration-200 text-gray-900 dark:text-white"
+                aria-label="Filter products"
+              >
+                <option value="all">All Crops</option>
+                <option value="organic">Organic Only</option>
+                <option value="verified">Verified Only</option>
+                <option value="trending">Trending</option>
+              </select>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No crops found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
           </div>
+        </FadeIn>
+
+        {/* NFT Grid */}
+        {isLoading ? (
+          <SkeletonGrid count={8} className="mb-12" />
+        ) : (
+          <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12" staggerDelay={100}>
+            {filteredNFTs.map((nft) => (
+              <NFTCard 
+                key={nft.id}
+                nft={nft} 
+                onViewDetails={(id) => {
+                  console.log('View details:', id);
+                  announce(`Viewing details for ${nft.cropName}`);
+                }}
+                onPurchase={(id) => {
+                  console.log('Purchase:', id);
+                  announce(`Purchasing ${nft.cropName} NFT`);
+                }}
+              />
+            ))}
+          </Stagger>
+        )}
+
+        {!isLoading && filteredNFTs.length === 0 && searchQuery && (
+          <NoSearchResults 
+            query={searchQuery} 
+            onClear={clearSearch} 
+            onBrowse={() => {
+              setSearchQuery('');
+              setSelectedFilter('all');
+            }}
+          />
         )}
       </div>
 

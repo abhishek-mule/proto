@@ -10,17 +10,29 @@ import ProductPage from './components/consumer/ProductPage';
 import WalletConnection from './components/wallet/WalletConnection';
 import BottomNavigation from './components/common/BottomNavigation';
 import PWAHome from './components/PWAHome';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 import { useAuth } from './contexts/AuthContext';
 
 function App() {
+  return (
+    <ThemeProvider>
+      <ErrorBoundary>
+        <AppContent />
+      </ErrorBoundary>
+    </ThemeProvider>
+  );
+}
+
+function AppContent() {
   // Check if device is mobile
   const isMobile = window.innerWidth < 768;
   const { user } = useAuth();
 
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-forest-50 via-white to-harvest-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
         {!isMobile && <Header />}
         <Routes>
           <Route path="/" element={isMobile ? <PWAHome /> : <RoleBasedLogin />} />
@@ -71,8 +83,10 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['consumer', 'farmer', 'admin']}>
                 <div className="max-w-2xl mx-auto px-4 py-8">
-                  <h1>User Profile</h1>
-                  <p>Welcome to your profile page!</p>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-soft border border-gray-100 dark:border-gray-700">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">User Profile</h1>
+                    <p className="text-gray-600 dark:text-gray-400">Welcome to your profile page! Here you can manage your account settings and preferences.</p>
+                  </div>
                 </div>
               </ProtectedRoute>
             }
@@ -84,7 +98,24 @@ function App() {
             element={
               <ProtectedRoute>
                 <div className="max-w-2xl mx-auto px-4 py-8">
-                  <WalletConnection />
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-soft border border-gray-100 dark:border-gray-700">
+                    <WalletConnection />
+                  </div>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Settings Route */}
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute allowedRoles={['consumer', 'farmer', 'admin']}>
+                <div className="max-w-2xl mx-auto px-4 py-8">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-soft border border-gray-100 dark:border-gray-700">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Settings</h1>
+                    <p className="text-gray-600 dark:text-gray-400">Manage your preferences and application settings.</p>
+                  </div>
                 </div>
               </ProtectedRoute>
             }
