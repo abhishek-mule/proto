@@ -48,21 +48,28 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// Enhanced CORS Configuration
+// Enhanced CORS Configuration (allow env origins and *.vercel.app)
+const staticAllowed = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+const vercelDomainRegex = /\.vercel\.app$/;
+
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-
-    const allowedOrigins = process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(',')
-      : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'];
-
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      securityLogger.warn('CORS blocked request from origin:', { origin });
-      callback(new Error('Not allowed by CORS'));
+  origin: (origin, cb) => {
+    // Allow same-origin or non-browser requests
+    if (!origin) return cb(null, true);
+    try {
+      const { hostname } = new URL(origin);
+      const allowed =
+        staticAllowed.includes(origin) ||
+        vercelDomainRegex.test(hostname) ||
+        staticAllowed.includes('*');
+      if (allowed) return cb(null, true);
+      securityLogger.warn('CORS blocked request from origin', { origin });
+      return cb(new Error('Not allowed by CORS'));
+    } catch {
+      return cb(new Error('Invalid Origin'));
     }
   },
   credentials: true,
@@ -71,6 +78,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+// Handle preflight across all paths (Express 5 compatible)
+app.options(/.*/, cors(corsOptions));
 
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));
@@ -429,9 +438,12 @@ const startServer = async () => {
     
     const PORT = process.env.PORT || 5000;
     const HOST = process.env.HOST || '0.0.0.0';
-    const server = app.listen(PORT, HOST, () => {
+const server = app.listen(PORT, HOST, () => {
       console.log(`Server running on port ${PORT}`);
     });
+    // Increase timeouts to reduce gateway timeout issues on cold starts
+    server.keepAliveTimeout = 120000; // 120s
+    server.headersTimeout = 120000; // 120s
 
     // Handle unhandled promise rejections
     process.on('unhandledRejection', (err) => {
