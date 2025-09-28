@@ -37,6 +37,7 @@ export type { NFTCardProps };
 
 const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
  
   const getStageColor = (stage: string) => {
     const colors = {
