@@ -1,7 +1,7 @@
 {
-  "name": "PayChain - Blockchain Payment App",
-  "short_name": "PayChain",
-  "description": "Secure blockchain payment platform with offline capabilities and real-time transaction tracking",
+  "name": "AgroChain - Agricultural NFT Marketplace",
+  "short_name": "AgroChain",
+  "description": "Blockchain-verified agricultural marketplace connecting farmers and consumers through NFT technology",
   "start_url": "/?source=pwa",
   "id": "/",
   "display": "standalone",

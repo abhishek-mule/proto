@@ -55,21 +55,36 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - handle requests
+// Fetch event - handle requests with comprehensive filtering
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   
-  // Skip chrome-extension requests
-  if (request.url.startsWith('chrome-extension://')) {
+  // Skip non-HTTP requests and extension contexts
+  if (!request.url.startsWith('http') || 
+      request.url.startsWith('chrome-extension://') ||
+      request.url.startsWith('moz-extension://')) {
+    console.log('[SW] Skipping non-HTTP or extension request:', request.url);
     return;
   }
   
   const url = new URL(request.url);
-
-  // Do not intercept cross-origin requests; let the browser handle CORS
-  if (url.origin !== self.location.origin) {
-    event.respondWith(fetch(request));
-    return;
+  const isCurrentOrigin = url.origin === self.location.origin;
+  
+  // Define API domains that should bypass SW completely
+  const apiDomains = [
+    'agri-backend-ecci.onrender.com',
+    'api.pinata.cloud',
+    'gateway.pinata.cloud',
+    'polygon-rpc.com',
+    'matic-mumbai.chainstacklabs.com'
+  ];
+  
+  const isBypassDomain = apiDomains.some(domain => url.hostname.includes(domain));
+  
+  // Bypass SW completely for external API requests to prevent CORS issues
+  if (!isCurrentOrigin || isBypassDomain) {
+    console.log('[SW] Bypassing external/API request:', url.hostname);
+    return; // Let browser handle directly
   }
 
   // Handle API requests

@@ -1,9 +1,22 @@
 {
+  "routes": [
+    {
+      "src": "/manifest.json",
+      "headers": {
+        "Content-Type": "application/manifest+json",
+        "Cache-Control": "public, max-age=3600"
+      }
+    },
+    {
+      "src": "/sw.js",
+      "headers": {
+        "Content-Type": "application/javascript",
+        "Service-Worker-Allowed": "/"
+      }
+    }
+  ],
   "rewrites": [
-    { "source": "/manifest.json", "destination": "/manifest.json" },
-    { "source": "/icons/(.*)", "destination": "/icons/$1" },
-    { "source": "/assets/(.*)", "destination": "/assets/$1" },
-    { "source": "/sw.js", "destination": "/sw.js" },
+    { "source": "/api/(.*)", "destination": "https://agri-backend-ecci.onrender.com/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

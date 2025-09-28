@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/common/Header';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -12,6 +12,7 @@ import BottomNavigation from './components/common/BottomNavigation';
 import PWAHome from './components/PWAHome';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { warmUpServer } from './services/apiClient';
 
 import { useAuth } from './contexts/AuthContext';
 
@@ -29,6 +30,11 @@ function AppContent() {
   // Check if device is mobile
   const isMobile = window.innerWidth < 768;
   const { user } = useAuth();
+
+  // Warm up server on app start to prevent cold start delays
+  useEffect(() => {
+    warmUpServer();
+  }, []);
 
   return (
     <Router>

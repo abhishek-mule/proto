@@ -44,32 +44,95 @@ app.use(helmet({
   }
 }));
 
-// CORS: allow env origins and any *.vercel.app subdomain
+// Enhanced CORS configuration for production deployment
 const allowedOrigins = (process.env.CORS_ORIGIN || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
-const vercelRegex = /\.vercel\.app$/;
+
+// Allow all Vercel domains, Render previews, and localhost for development
+const developmentOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173'
+];
+
+// Production domain patterns
+const productionPatterns = [
+  /^https:\/\/.*\.vercel\.app$/,
+  /^https:\/\/proto.*\.vercel\.app$/,
+  /^https:\/\/.*\.onrender\.com$/,
+  /^https:\/\/agri-.*\.onrender\.com$/
+];
 
 const agriCorsOptions = {
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true);
+    console.log('🔍 CORS check for origin:', origin);
+    
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) {
+      console.log('✅ No origin header - allowing');
+      return cb(null, true);
+    }
+
     try {
-      const { hostname } = new URL(origin);
-      const ok = allowedOrigins.includes(origin) || vercelRegex.test(hostname) || allowedOrigins.includes('*');
-      cb(ok ? null : new Error('Not allowed by CORS'), ok);
-    } catch {
-      cb(new Error('Invalid Origin'));
+      // Check explicit allowed origins
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        console.log('✅ Origin in allowed list:', origin);
+        return cb(null, true);
+      }
+
+      // Check development origins
+      if (process.env.NODE_ENV !== 'production' && developmentOrigins.includes(origin)) {
+        console.log('✅ Development origin allowed:', origin);
+        return cb(null, true);
+      }
+
+      // Check production patterns
+      const isProductionPattern = productionPatterns.some(pattern => pattern.test(origin));
+      if (isProductionPattern) {
+        console.log('✅ Production pattern matched:', origin);
+        return cb(null, true);
+      }
+
+      // Log and reject unmatched origins
+      console.warn('❌ Origin rejected:', origin);
+      cb(new Error(`CORS: Origin ${origin} not allowed`), false);
+      
+    } catch (error) {
+      console.error('❌ CORS origin validation error:', error);
+      cb(new Error('CORS: Invalid origin format'), false);
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-razorpay-signature', 'X-Requested-With'],
+  optionsSuccessStatus: 200, // Support legacy browsers
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'x-razorpay-signature', 
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
+  exposedHeaders: ['Authorization']
 };
 
+// Apply CORS middleware
 app.use(cors(agriCorsOptions));
-// Handle preflight across all paths (Express 5 compatible)
-app.options(/.*/, cors(agriCorsOptions));
+
+// Explicit preflight handler for all routes
+app.options('*', (req, res) => {
+  console.log('📮 Preflight OPTIONS request for:', req.path);
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Methods', 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-razorpay-signature, X-Requested-With, Accept, Origin');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.status(200).end();
+});
 
 // Rate limiting
 const limiter = rateLimit({
