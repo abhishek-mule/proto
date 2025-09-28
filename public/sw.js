@@ -66,6 +66,12 @@ self.addEventListener('fetch', (event) => {
   
   const url = new URL(request.url);
 
+  // Do not intercept cross-origin requests; let the browser handle CORS
+  if (url.origin !== self.location.origin) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // Handle API requests
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(handleApiRequest(request));
