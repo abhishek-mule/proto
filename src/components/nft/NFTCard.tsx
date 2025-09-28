@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   MapPin, Calendar, Shield, Star, Eye, Heart, 
   Verified, Leaf, Award, TrendingUp, Clock,
-  ChevronRight, QrCode, Share2
+  ChevronRight, QrCode, Share2, Sparkles
 } from 'lucide-react';
 
 interface NFTCardProps {
@@ -38,6 +38,8 @@ export type { NFTCardProps };
 const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
  
   const getStageColor = (stage: string) => {
     const colors = {
@@ -63,44 +65,122 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => 
     return progress[stage as keyof typeof progress] || 0;
   };
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: nft.cropName,
+          text: `Check out this ${nft.cropName} NFT from ${nft.farmerName}`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      // Fallback to clipboard
+      await navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent, action: () => void) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      action();
+    }
+  };
+
   return (
-    <div className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl border border-amber-100/50 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2">
+    <div 
+      ref={cardRef}
+      className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-soft hover:shadow-hard border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2 cursor-pointer focus-within:ring-4 focus-within:ring-forest-500/20"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      role="article"
+      aria-label={`NFT: ${nft.cropName} by ${nft.farmerName}`}
+      tabIndex={0}
+      onKeyPress={(e) => handleKeyPress(e, () => onViewDetails(nft.id))}
+    >
+      {/* Shimmer Effect */}
+      {isHovered && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer z-10 pointer-events-none" />
+      )}
+      
       {/* NFT Image */}
-      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-green-50 to-amber-50">
+      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-forest-50 to-harvest-50 dark:from-gray-700 dark:to-gray-600">
+        {/* Loading shimmer */}
         {!imageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-8 h-8 border-3 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 animate-shimmer" />
+            <div className="relative z-10">
+              <Sparkles className="w-8 h-8 text-forest-400 animate-pulse" />
+            </div>
           </div>
         )}
         <img
-          src={nft.cropImage}
-          alt={nft.cropName}
+          src={nft.cropImage || '/api/placeholder/400/400'}
+          alt={`${nft.cropName} grown by ${nft.farmerName} in ${nft.farmLocation}`}
           className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={() => setImageLoaded(true)}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/api/placeholder/400/400';
+            setImageLoaded(true);
+          }}
+          loading="lazy"
         />
         
         {/* Overlay Actions */}
-        <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
           <button
-            onClick={() => setIsLiked(!isLiked)}
-            className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white hover:scale-110 transition-all shadow-lg"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsLiked(!isLiked);
+            }}
+            className="p-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full hover:bg-white dark:hover:bg-gray-800 hover:scale-110 transition-all shadow-lg border border-white/20"
+            aria-label={isLiked ? 'Unlike this NFT' : 'Like this NFT'}
+            title={isLiked ? 'Unlike' : 'Like'}
           >
-            <Heart className={`h-4 w-4 transition-colors ${isLiked ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
+            <Heart 
+              className={`h-4 w-4 transition-all duration-300 ${
+                isLiked 
+                  ? 'text-red-500 fill-red-500 scale-110' 
+                  : 'text-gray-600 dark:text-gray-300 hover:text-red-500'
+              }`} 
+            />
           </button>
-          <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white hover:scale-110 transition-all shadow-lg">
-            <Share2 className="h-4 w-4 text-gray-600" />
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleShare();
+            }}
+            className="p-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full hover:bg-white dark:hover:bg-gray-800 hover:scale-110 transition-all shadow-lg border border-white/20"
+            aria-label="Share this NFT"
+            title="Share"
+          >
+            <Share2 className="h-4 w-4 text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors" />
           </button>
-          <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white hover:scale-110 transition-all shadow-lg">
-            <QrCode className="h-4 w-4 text-gray-600" />
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              // QR code functionality can be added here
+            }}
+            className="p-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full hover:bg-white dark:hover:bg-gray-800 hover:scale-110 transition-all shadow-lg border border-white/20"
+            aria-label="Show QR code"
+            title="QR Code"
+          >
+            <QrCode className="h-4 w-4 text-gray-600 dark:text-gray-300 hover:text-forest-500 transition-colors" />
           </button>
         </div>
 
         {/* NFT Badge */}
         <div className="absolute top-4 left-4">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
-            NFT #{nft.tokenId}
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm border border-white/20 hover:scale-105 transition-transform">
+            <span className="flex items-center space-x-1">
+              <Sparkles className="h-3 w-3" />
+              <span>NFT #{nft.tokenId}</span>
+            </span>
           </div>
         </div>
 
@@ -134,27 +214,31 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => 
       </div>
 
       {/* Card Content */}
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-4 relative z-10">
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-800 group-hover:text-green-700 transition-colors leading-tight">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white group-hover:text-forest-700 dark:group-hover:text-forest-400 transition-colors leading-tight truncate">
               {nft.cropName}
             </h3>
-            <div className="flex items-center space-x-2 mt-1">
-              <div className="w-6 h-6 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center">
-                <div className="w-3 h-3 bg-gradient-to-br from-green-500 to-green-600 rounded-full"></div>
+            <div className="flex items-center space-x-2 mt-2">
+              <div className="w-6 h-6 bg-gradient-to-br from-forest-100 to-forest-200 dark:from-forest-800 dark:to-forest-700 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-3 h-3 bg-gradient-to-br from-forest-500 to-forest-600 rounded-full animate-pulse-soft"></div>
               </div>
-              <span className="text-sm font-medium text-gray-700">{nft.farmerName}</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{nft.farmerName}</span>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">${nft.price}</div>
-            <div className={`text-sm font-medium flex items-center ${
-              nft.priceChange >= 0 ? 'text-green-600' : 'text-red-600'
+          <div className="text-right flex-shrink-0 ml-4">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">${nft.price.toFixed(2)}</div>
+            <div className={`text-sm font-medium flex items-center justify-end transition-colors ${
+              nft.priceChange >= 0 
+                ? 'text-forest-600 dark:text-forest-400' 
+                : 'text-red-600 dark:text-red-400'
             }`}>
-              <TrendingUp className={`h-3 w-3 mr-1 ${nft.priceChange < 0 ? 'rotate-180' : ''}`} />
-              {nft.priceChange >= 0 ? '+' : ''}{nft.priceChange}%
+              <TrendingUp className={`h-3 w-3 mr-1 transition-transform ${
+                nft.priceChange < 0 ? 'rotate-180' : ''
+              }`} />
+              {nft.priceChange >= 0 ? '+' : ''}{nft.priceChange.toFixed(1)}%
             </div>
           </div>
         </div>
@@ -236,19 +320,29 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onViewDetails, onPurchase }) => 
         {/* Action Buttons */}
         <div className="flex space-x-3 pt-2">
           <button
-            onClick={() => onViewDetails(nft.id)}
-            className="flex-1 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 py-3 px-4 rounded-xl font-semibold hover:from-amber-200 hover:to-yellow-200 transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails(nft.id);
+            }}
+            className="flex-1 bg-gradient-to-r from-harvest-100 to-harvest-200 dark:from-harvest-800 dark:to-harvest-700 text-harvest-800 dark:text-harvest-200 py-3 px-4 rounded-xl font-semibold hover:from-harvest-200 hover:to-harvest-300 dark:hover:from-harvest-700 dark:hover:to-harvest-600 transition-all duration-300 hover:scale-105 shadow-soft hover:shadow-medium flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-harvest-500/50"
+            aria-label={`View details for ${nft.cropName}`}
           >
             <Eye className="h-4 w-4" />
-            <span>View Details</span>
-            <ChevronRight className="h-4 w-4" />
+            <span className="hidden sm:inline">Details</span>
+            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </button>
           <button
-            onClick={() => onPurchase(nft.id)}
-            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPurchase(nft.id);
+            }}
+            className="flex-1 bg-gradient-primary text-white py-3 px-4 rounded-xl font-semibold hover:shadow-glow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-forest-500/50 relative overflow-hidden group"
+            aria-label={`Purchase ${nft.cropName} NFT for $${nft.price}`}
           >
-            <Shield className="h-4 w-4" />
-            <span>Purchase NFT</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-forest-600 to-forest-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Shield className="h-4 w-4 relative z-10" />
+            <span className="relative z-10 hidden sm:inline">Purchase</span>
+            <span className="relative z-10 sm:hidden">${nft.price}</span>
           </button>
         </div>
       </div>
